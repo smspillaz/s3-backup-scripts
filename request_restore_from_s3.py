@@ -24,6 +24,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--path", type=str)
     parser.add_argument("--bucket", type=str)
+    parser.add_argument("--restore-time", type=int, default=5)
     args = parser.parse_args()
 
     client = boto3.client('s3')
@@ -33,12 +34,12 @@ def main():
     for path in tqdm(paths):
         s3_path = os.path.join(args.path, path)
         try:
-            print(f"Restoring to {args.bucket}:{s3_path} from glacier storage class for 2 days")
+            print(f"Restoring to {args.bucket}:{s3_path} from glacier storage class for {args.restore_time} days")
             print(client.restore_object(
                 Bucket=args.bucket,
                 Key=s3_path,
                 RestoreRequest={
-                    "Days": 2,
+                    "Days": args.restore_time,
                     "GlacierJobParameters": {
                         "Tier": "Standard"
                     }
